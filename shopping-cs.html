@@ -1,559 +1,1058 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
 <meta charset="utf-8"/>
-<title>SIIC 부천센터 업무 시스템 · admin_dashboard_interface</title>
+<title>SIIC 부천센터 업무 시스템 · 쇼핑몰 CS 현황</title>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 <style>
-/* 총 9건 / 총 11건 태그 스타일 */
+* { 
+  box-sizing: border-box; 
+  margin: 0;
+  padding: 0;
+}
+
+html, body { 
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  font-family: "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #111827;
+  background: #ffffff;
+}
+
+.slide-root {
+  width: 100%;
+  min-width: 1280px;
+  min-height: 100vh;
+  background: #f3f4f6;
+}
+
+.layout {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 260px;
+  min-width: 260px;
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  padding: 16px 12px 20px;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-top {
+  background: #0f6fff;
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+}
+
+.sidebar-top p { 
+  margin: 0; 
+  font-weight: 700; 
+  font-size: 14px; 
+}
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px 14px;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 12px;
+}
+
+.avatar { 
+  width: 32px; 
+  height: 32px; 
+  border-radius: 999px; 
+  background: #e0f2fe; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+}
+
+.avatar p { 
+  margin: 0; 
+  font-weight: 700; 
+  font-size: 14px; 
+  color: #0369a1; 
+}
+
+.sidebar-user-text p { 
+  margin: 0; 
+  line-height: 1.1; 
+}
+
+.sidebar-user-text .user-name { 
+  font-size: 13px; 
+  font-weight: 600; 
+}
+
+.sidebar-user-text .user-role { 
+  font-size: 11px; 
+  color: #9ca3af; 
+}
+
+.sidebar-toggle {
+  margin-left: auto;
+  min-width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-toggle p { 
+  margin: 0; 
+  font-size: 11px; 
+  color: #6b7280; 
+}
+
+.nav { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 2px; 
+}
+
+.nav-item { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  padding: 6px 8px; 
+  border-radius: 8px; 
+  color: #374151; 
+  cursor: default; 
+}
+
+.nav-item p.nav-label { 
+  margin: 0; 
+  font-size: 13px; 
+}
+
+.nav-item.indent-1 { padding-left: 16px; }
+.nav-item.indent-2 { padding-left: 32px; }
+
+.nav-bullet { 
+  width: 5px; 
+  height: 5px; 
+  border-radius: 999px; 
+  background: #9ca3af; 
+  display: inline-block; 
+  flex-shrink: 0; 
+}
+
+.nav-item--active { 
+  background: #eff6ff; 
+  color: #1d4ed8; 
+  font-weight: 600; 
+}
+
+.nav-item--active p.nav-label { 
+  color: #1d4ed8; 
+}
+
+.nav-bullet.active { 
+  background: #1d4ed8; 
+}
+
+.main {
+  flex: 1;
+  background: #f9fafb;
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+.global-header {
+  background: #0f6fff;
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(15, 111, 255, 0.1);
+}
+
+.gh-left, .gh-right { 
+  display: flex; 
+  align-items: center; 
+  gap: 10px; 
+}
+
+.gh-left p, .gh-right p { 
+  margin: 0; 
+  font-size: 14px; 
+  font-weight: 600; 
+}
+
+.gh-left p.meta { 
+  opacity: 0.85; 
+  font-size: 11px; 
+  font-weight: 400; 
+  margin-left: 8px; 
+}
+
+.gh-left p.sep { 
+  opacity: 0.6; 
+  font-weight: 400; 
+  margin: 0 4px; 
+}
+
+.btn { 
+  display: inline-flex; 
+  align-items: center; 
+  justify-content: center; 
+  border: 1px solid #ffffff; 
+  background: #ffffff; 
+  color: #0f6fff; 
+  border-radius: 6px; 
+  padding: 4px 12px; 
+  cursor: default; 
+}
+
+.btn p { 
+  margin: 0; 
+  font-size: 11px; 
+  font-weight: 600; 
+}
+
+.btn.danger { 
+  border-color: #fee2e2; 
+  color: #ef4444; 
+  background: #fef2f2; 
+}
+
+.page-title-row { 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  margin-bottom: 12px; 
+  gap: 12px; 
+}
+
+.page-main-title { 
+  font-size: 24px; 
+  font-weight: 800; 
+  color: #111827; 
+  margin: 0; 
+}
+
+.date-controls { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  flex-wrap: wrap; 
+}
+
+.mode-toggle { 
+  display: inline-flex; 
+  background: #f3f4f6; 
+  border-radius: 6px; 
+  padding: 1px; 
+}
+
+.mode-btn { 
+  border: none; 
+  background: transparent; 
+  padding: 2px 10px; 
+  border-radius: 4px; 
+  font-size: 12px; 
+  font-weight: 700; 
+  color: #6b7280; 
+  cursor: pointer; 
+  line-height: 1; 
+}
+
+.mode-btn.active { 
+  background: #0f6fff; 
+  color: #ffffff; 
+}
+
+.period-fields { 
+  display: inline-flex; 
+  align-items: center; 
+  gap: 6px; 
+}
+
+.period-fields > p {
+  font-size: 10px;
+  font-weight: 600;
+  color: #6b7280;
+  margin: 0 2px;
+}
+
+.input-chip { 
+  display: inline-flex; 
+  align-items: center; 
+  gap: 6px; 
+  padding: 4px 8px; 
+  border: 1px solid #d1d5db; 
+  background: #ffffff; 
+  border-radius: 6px; 
+}
+
+.input-chip p { 
+  margin: 0; 
+  font-size: 12px; 
+  font-weight: 600; 
+  color: #111827; 
+}
+
+.btn-primary { 
+  border: 1px solid #8b5cf6; 
+  background: #8b5cf6; 
+  color: #ffffff; 
+  border-radius: 6px; 
+  padding: 6px 12px; 
+  display: inline-flex; 
+  align-items: center; 
+}
+
+.btn-primary p { 
+  margin: 0; 
+  font-size: 12px; 
+  font-weight: 700; 
+}
+
+.section-wrapper { 
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.section-header { 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  margin-bottom: 10px; 
+}
+
+.section-title { 
+  font-size: 15px; 
+  font-weight: 700; 
+  color: #111827; 
+  margin: 0; 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+}
+
+.section-title::before { 
+  content: ''; 
+  display: block; 
+  width: 4px; 
+  height: 15px; 
+  background: #0f6fff; 
+  border-radius: 2px; 
+}
+
+.filter-btn-group { 
+  display: flex; 
+  gap: 4px; 
+  background: #f3f4f6; 
+  padding: 1px; 
+  border-radius: 6px; 
+}
+
+.filter-btn { 
+  border: none; 
+  background: transparent; 
+  padding: 2px 8px; 
+  border-radius: 4px; 
+  font-size: 10px; 
+  font-weight: 600; 
+  color: #6b7280; 
+  cursor: pointer; 
+  line-height: 1; 
+}
+
+.filter-btn.active { 
+  background: #0f6fff; 
+  color: #ffffff; 
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1); 
+}
+
+.stats-split-container { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 16px; 
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+.stat-group-box { 
+  background: #ffffff; 
+  border: 1px solid #e5e7eb; 
+  border-radius: 10px; 
+  padding: 10px 14px; 
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03); 
+  display: flex; 
+  flex-direction: column; 
+  height: 100%; 
+}
+
+.stat-group-header { 
+  display: flex; 
+  align-items: center; 
+  gap: 6px; 
+  margin-bottom: 8px; 
+  padding-bottom: 6px; 
+  border-bottom: 1px solid #f3f4f6; 
+}
+
+.stat-group-icon { 
+  color: #2563eb; 
+  font-size: 13px; 
+  background: #eff6ff; 
+  width: 22px; 
+  height: 22px; 
+  border-radius: 4px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+}
+
+.stat-group-title { 
+  font-size: 13px; 
+  font-weight: 700; 
+  color: #1f2937; 
+  margin: 0; 
+}
+
+.stat-stack { 
+  display: flex; 
+  flex-direction: row; 
+  gap: 8px; 
+  flex: 1; 
+}
+
+.stat-card-h { 
+  flex: 1; 
+  background: #f9fafb; 
+  border: 1px solid #e5e7eb; 
+  border-radius: 6px; 
+  padding: 8px 10px; 
+  display: flex; 
+  flex-direction: column; 
+  justify-content: center; 
+  gap: 2px; 
+  transition: all 0.2s; 
+}
+
+.stat-card-h:hover { 
+  background: #eff6ff; 
+  border-color: #bfdbfe; 
+}
+
+.card-left { 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  width: 100%; 
+}
+
+.card-title { 
+  font-size: 12px; 
+  font-weight: 600; 
+  color: #4b5563; 
+  margin: 0; 
+}
+
+.card-value-wrap { 
+  display: flex; 
+  align-items: baseline; 
+  gap: 2px; 
+}
+
+.card-val { 
+  font-size: 18px; 
+  font-weight: 800; 
+  color: #111827; 
+  line-height: 1; 
+}
+
+.card-unit { 
+  font-size: 11px; 
+  font-weight: 600; 
+  color: #6b7280; 
+}
+
+.card-sub-row { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin-top: 4px; 
+}
+
+.card-sub { 
+  font-size: 10px; 
+  color: #9ca3af; 
+  margin: 0; 
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+}
+
+.card-trend { 
+  font-size: 11px; 
+  font-weight: 600; 
+  display: flex; 
+  align-items: center; 
+  gap: 2px; 
+}
+
+.trend-up { color: #dc2626; }
+.trend-down { color: #2563eb; }
+
+.toggle-btn-container { 
+  display: flex; 
+  justify-content: flex-end; 
+  margin-bottom: 8px; 
+  gap: 12px;
+}
+
+.toggle-btn { 
+  background: transparent; 
+  border: none; 
+  color: #6b7280; 
+  font-size: 12px; 
+  font-weight: 600; 
+  cursor: pointer; 
+  display: flex; 
+  align-items: center; 
+  gap: 4px; 
+  padding: 4px 8px; 
+  border-radius: 4px; 
+}
+
+.toggle-btn:hover { 
+  background: #f3f4f6; 
+  color: #374151; 
+}
+
+.toggle-content { 
+  display: none; 
+}
+
+.toggle-content.show { 
+  display: block; 
+  animation: fadeIn 0.3s ease; 
+}
+
+@keyframes fadeIn { 
+  from { 
+    opacity: 0; 
+    transform: translateY(-5px); 
+  } 
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  } 
+}
+
+.summary-grid-compact { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 16px;
+  width: 100%;
+}
+
+.summary-box-compact { 
+  background: #ffffff; 
+  border: 1px solid #e5e7eb; 
+  border-radius: 10px; 
+  overflow: hidden; 
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+}
+
+.summary-list-row {
+  display: grid; 
+  grid-template-columns: 80px 1fr 90px; 
+  align-items: center; 
+  padding: 4px 14px; 
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.summary-list-container .summary-list-row:last-child {
+  border-bottom: none;
+}
+
+.summary-header-compact { 
+  background: #f9fafb; 
+  padding: 10px 14px; 
+  font-size: 13px; 
+  font-weight: 700; 
+  color: #111827; 
+  margin: 0; 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  border-bottom: 1px solid #e5e7eb; 
+}
+
+.summary-header-compact i { 
+  color: #9ca3af; 
+  font-size: 12px; 
+}
+
+.sl-label { 
+  font-size: 12px; 
+  color: #6b7280; 
+  font-weight: 500; 
+}
+
+.sl-value { 
+  font-size: 12px; 
+  color: #111827; 
+  font-weight: 600; 
+  display: flex; 
+  align-items: center; 
+  gap: 6px; 
+}
+
+.sl-change { 
+  font-size: 11px; 
+  font-weight: 600; 
+  text-align: right; 
+  display: flex; 
+  align-items: center; 
+  justify-content: flex-end; 
+  gap: 3px; 
+}
+
+.chart-card { 
+  background: #ffffff; 
+  border: 1px solid #e5e7eb; 
+  border-radius: 10px; 
+  padding: 14px; 
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+  position: relative;
+  width: 100%;
+}
+
+.chart-card-header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin-bottom: 8px; 
+}
+
+.chart-title-small { 
+  font-size: 13px; 
+  font-weight: 600; 
+  color: #374151; 
+  margin: 0; 
+}
+
+.chart-container-large { 
+  height: 240px; 
+  width: 100%; 
+}
+
+.chart-container-medium { 
+  height: 200px; 
+  width: 100%; 
+}
+
+.chart-container-small { 
+  height: 160px; 
+  width: 100%; 
+}
+
+.prod-cards { 
+  display: grid; 
+  grid-template-columns: repeat(4, 1fr); 
+  gap: 10px; 
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.prod-card { 
+  background: #ffffff; 
+  border: 1px solid #e5e7eb; 
+  border-radius: 8px; 
+  padding: 12px 14px; 
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05); 
+  display: flex; 
+  flex-direction: column;
+  gap: 6px;
+  min-height: 80px;
+}
+
+.prod-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.prod-card p {
+  margin: 0;
+  line-height: 1.2;
+}
+
+.prod-label { 
+  font-size: 11px; 
+  color: #6b7280; 
+  font-weight: 600;
+}
+
+.prod-val { 
+  font-size: 22px; 
+  font-weight: 800; 
+  color: #111827; 
+}
+
+.prod-trend { 
+  font-size: 11px; 
+  font-weight: 600;
+  align-self: flex-end;
+  margin-top: auto;
+}
+
+.prod-charts { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 16px;
+  width: 100%;
+}
+
+.issue-main-container {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 14px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  width: 100%;
+}
+
+.issue-summary-left {
+  min-width: 200px;
+  padding-right: 20px;
+  border-right: 1px solid #bfdbfe;
+}
+
+.issue-summary-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e40af;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.issue-cards-right {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  flex: 1;
+}
+
+.issue-card {
+  background: #ffffff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.issue-card .icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: #eff6ff;
+  color: #1e40af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.issue-card .issue-text-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.issue-card .issue-card-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.issue-card .issue-card-count {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1e40af;
+  margin: 2px 0 4px 0;
+  line-height: 1;
+}
+
+.issue-card .issue-details {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.issue-card .issue-detail-txt {
+  font-size: 10px;
+  color: #6b7280;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.data-table-container {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  width: 100%;
+}
+
+.table-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #111827;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table-title::before {
+  content: "";
+  width: 3px;
+  height: 12px;
+  border-radius: 999px;
+  background: #0f6fff;
+  flex-shrink: 0;
+}
+
+.table-title p {
+  margin: 0;
+}
+
+table.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+table.data-table thead th {
+  padding: 8px 16px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  font-weight: 600;
+  color: #4b5563;
+  text-align: left;
+  white-space: nowrap;
+}
+
+table.data-table tbody td {
+  padding: 10px 16px;
+  border-top: 1px solid #f3f4f6;
+  color: #111827;
+  vertical-align: top;
+}
+
+table.data-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
 .badge-count {
   display: inline-flex;
   align-items: center;
   padding: 2px 10px;
-  border-radius: 999px;       /* 타원형 */
-  background: #e0f2fe;        /* 아주 연한 하늘색 */
-  color: #1d4ed8;             /* 파란 글씨 */
-  font-weight: 700;           /* 볼드 */
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #1d4ed8;
+  font-weight: 700;
   font-size: 11px;
   line-height: 1;
 }
 
-/* 태그랑 아래 텍스트 사이 살짝 간격 */
 td p .badge-count {
   margin-bottom: 2px;
 }
 
-    * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; }
-    body {
-      font-family: "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: #111827;
-      background: #ffffff;
-    }
-
-    /* ★ 높이 고정/스크롤 제거 버전 */
-    .slide-root[data-template="admin_dashboard_interface"] {
-      width: 1280px;
-      min-height: 720px;
-      margin: 0 auto;
-      background: #f3f4f6;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      /* overflow: hidden;  ← 제거 */
-      position: relative;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 260px 1fr;
-      gap: 0;
-      /* height: 720px; ← 제거 */
-      min-height: 720px; /* 필요한 경우 최소 높이만 유지 */
-    }
-
-    .sidebar {
-      background: #ffffff;
-      border-right: 1px solid #e5e7eb;
-      padding: 16px 12px 20px;
-      display: flex;
-      flex-direction: column;
-      /* height: 100%; ← 제거 */
-      z-index: 10;
-      /* overflow-y: auto; ← 제거 */
-    }
-    .sidebar-top {
-      background: #0f6fff;
-      color: #ffffff;
-      border-radius: 8px;
-      padding: 10px 12px;
-      margin-bottom: 16px;
-    }
-    .sidebar-top p { margin: 0; font-weight: 700; font-size: 14px; }
-    .sidebar-user {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 4px 14px;
-      border-bottom: 1px solid #e5e7eb;
-      margin-bottom: 12px;
-    }
-    .avatar { width: 32px; height: 32px; border-radius: 999px; background: #e0f2fe; display: flex; align-items: center; justify-content: center; }
-    .avatar p { margin: 0; font-weight: 700; font-size: 14px; color: #0369a1; }
-    .sidebar-user-text p { margin: 0; line-height: 1.1; }
-    .sidebar-user-text .user-name { font-size: 13px; font-weight: 600; }
-    .sidebar-user-text .user-role { font-size: 11px; color: #9ca3af; }
-    .sidebar-toggle {
-      margin-left: auto;
-      min-width: 26px;
-      height: 26px;
-      border-radius: 999px;
-      border: 1px solid #e5e7eb;
-      background: #f9fafb;
-      cursor: default;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-    }
-    .sidebar-toggle p { margin: 0; font-size: 11px; color: #6b7280; }
-
-    .nav { display: flex; flex-direction: column; gap: 2px; }
-    .nav-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; color: #374151; cursor: default; }
-    .nav-item p.nav-label { margin: 0; font-size: 13px; }
-    .nav-item.indent-1 { padding-left: 16px; }
-    .nav-item.indent-2 { padding-left: 32px; }
-    .nav-bullet { width: 5px; height: 5px; border-radius: 999px; background: #9ca3af; display: inline-block; flex-shrink: 0; }
-    .nav-item--active { background: #eff6ff; color: #1d4ed8; font-weight: 600; }
-    .nav-item--active p.nav-label { color: #1d4ed8; }
-    .nav-bullet.active { background: #1d4ed8; }
-    .nav-group-title { font-size: 12px; font-weight: 700; color: #6b7280; margin-top: 8px; margin-bottom: 4px; padding-left: 8px; }
-
-    .main {
-      background: #f9fafb;
-      padding: 24px 32px;
-      display: flex;
-      flex-direction: column;
-      /* height: 100%; ← 제거 */
-      /* overflow-y: auto; ← 제거 */
-    }
-    .global-header {
-      background: #0f6fff;
-      color: #ffffff;
-      border-radius: 8px;
-      padding: 10px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      min-height: 48px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 4px rgba(15, 111, 255, 0.1);
-      flex-shrink: 0;
-    }
-    .gh-left, .gh-right { display: flex; align-items: center; gap: 10px; }
-    .gh-left p, .gh-right p { margin: 0; font-size: 14px; font-weight: 600; }
-    .gh-left p.meta { opacity: 0.85; font-size: 11px; font-weight: 400; margin-left: 8px; }
-    .gh-left p.sep { opacity: 0.6; font-weight: 400; margin: 0 4px; }
-    .btn { display: inline-flex; align-items: center; justify-content: center; border: 1px solid #ffffff; background: #ffffff; color: #0f6fff; border-radius: 6px; padding: 4px 12px; cursor: default; transition: all 0.2s; }
-    .btn p { margin: 0; font-size: 11px; font-weight: 600; }
-    .btn.danger { border-color: #fee2e2; color: #ef4444; background: #fef2f2; }
-
-    .page-title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 12px; }
-    .page-main-title { font-size: 24px; font-weight: 800; color: #111827; margin: 0; }
-
-    /* 날짜/기간 토글 + 입력칸 */
-    .date-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .mode-toggle { display: inline-flex; background: #f3f4f6; border-radius: 6px; padding: 1px; }
-    .mode-btn { border: none; background: transparent; padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: 700; color: #6b7280; cursor: pointer; line-height: 1; }
-    .mode-btn.active { background: #0f6fff; color: #ffffff; }
-    .period-fields { display: inline-flex; align-items: center; gap: 6px; }
-    .input-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border: 1px solid #d1d5db; background: #ffffff; border-radius: 6px; }
-    .input-chip p { margin: 0; font-size: 12px; font-weight: 600; color: #111827; }
-    .input-chip i { font-size: 12px; color: #6b7280; }
-    .tilde { margin: 0 4px; font-size: 12px; color: #6b7280; }
-    .btn-primary { border: 1px solid #8b5cf6; background: #8b5cf6; color: #ffffff; border-radius: 6px; padding: 6px 12px; display: inline-flex; align-items: center; }
-    .btn-primary p { margin: 0; font-size: 12px; font-weight: 700; }
-
-    .section-wrapper { margin-bottom: 20px; }
-    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-    .section-title { font-size: 15px; font-weight: 700; color: #111827; margin: 0; display: flex; align-items: center; gap: 8px; }
-    .section-title::before { content: ''; display: block; width: 4px; height: 15px; background: #0f6fff; border-radius: 2px; }
-
-    /* 필터 버튼 높이 최소화 - 지정값 반영 */
-    .filter-btn-group { display: flex; gap: 4px; background: #f3f4f6; padding: 1px; border-radius: 6px; }
-    .filter-btn { border: none; background: transparent; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; color: #6b7280; cursor: pointer; line-height: 1; }
-    .filter-btn.active { background: #0f6fff; color: #ffffff; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-
-    .stats-split-container { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px; }
-    .stat-group-box { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); display: flex; flex-direction: column; height: 100%; }
-    .stat-group-header { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #f3f4f6; }
-    .stat-group-icon { color: #2563eb; font-size: 13px; background: #eff6ff; width: 22px; height: 22px; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
-    .stat-group-title { font-size: 13px; font-weight: 700; color: #1f2937; margin: 0; }
-    .stat-stack { display: flex; flex-direction: row; gap: 8px; flex: 1; }
-    .stat-card-h { flex: 1; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px 10px; display: flex; flex-direction: column; justify-content: center; gap: 2px; transition: all 0.2s; }
-    .stat-card-h:hover { background: #eff6ff; border-color: #bfdbfe; }
-    .card-left { display: flex; align-items: center; justify-content: space-between; width: 100%; }
-    .card-title { font-size: 12px; font-weight: 600; color: #4b5563; margin: 0; }
-    .card-value-wrap { display: flex; align-items: baseline; gap: 2px; }
-    .card-val { font-size: 18px; font-weight: 800; color: #111827; line-height: 1; }
-    .card-unit { font-size: 11px; font-weight: 600; color: #6b7280; }
-    .card-sub-row { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
-    .card-sub { font-size: 10px; color: #9ca3af; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card-trend { font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 2px; }
-    .trend-up { color: #dc2626; }
-    .trend-down { color: #2563eb; }
-
-    .toggle-btn-container { display: flex; justify-content: flex-end; margin-bottom: 8px; }
-    .toggle-btn { background: transparent; border: none; color: #6b7280; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 4px; }
-    .toggle-btn:hover { background: #f3f4f6; color: #374151; }
-    .toggle-content { display: none; }
-    .toggle-content.show { display: block; animation: fadeIn 0.3s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-
-    .summary-grid-compact { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .summary-box-compact { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    .summary-list-row {display: grid; grid-template-columns: 80px 1fr 90px; align-items: center; padding: 4px 14px; border-bottom: 1px solid #e5e7eb;}
-
-/* 마지막 행은 줄 없애기 */
-.summary-list-container .summary-list-row:last-child {
-  border-bottom: none;
+.analysis-grid { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 16px;
+  width: 100%;
 }
-    .summary-header-compact { background: #f9fafb; padding: 10px 14px; font-size: 13px; font-weight: 700; color: #111827; margin: 0; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e5e7eb; }
-    .summary-header-compact i { color: #9ca3af; font-size: 12px; }
-  
-    .sl-label { font-size: 12px; color: #6b7280; font-weight: 500; }
-    .sl-value { font-size: 12px; color: #111827; font-weight: 600; display: flex; align-items: center; gap: 6px; }
-    .sl-change { font-size: 11px; font-weight: 600; text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 3px; }
 
-    .chart-card { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: relative; }
-    .chart-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .chart-title-small { font-size: 13px; font-weight: 600; color: #374151; margin: 0; }
-    .chart-container-large { height: 240px; width: 100%; }
-    .chart-container-medium { height: 200px; width: 100%; }
-    .chart-container-small { height: 160px; width: 100%; }
+.analysis-card { 
+  background: #ffffff; 
+  border: 1px solid #e5e7eb; 
+  border-radius: 10px; 
+  padding: 14px; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 12px; 
+}
 
-    .prod-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 10px; }
-    .prod-card { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 6px 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; }
-    .prod-label { font-size: 11px; color: #6b7280; margin-bottom: 0px !important; }
-    .prod-val { font-size: 20px; font-weight: 800; color: #111827; }
-    .prod-trend { font-size: 11px; font-weight: 600; }
-    .prod-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.analysis-header { 
+  font-size: 13px; 
+  font-weight: 700; 
+  display: flex; 
+  align-items: center; 
+  gap: 6px; 
+  margin: 0; 
+}
 
-    /* 주요 이슈 전체 컨테이너 */
-    .issue-main-container {
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      border-radius: 8px;
-      padding: 16px 20px;
-      margin-bottom: 14px;
-      display: flex;
-      gap: 20px;
-      align-items: center;
-    }
+.mini-table { 
+  width: 100%; 
+  border-collapse: collapse; 
+  font-size: 11px; 
+  margin-top: 10px; 
+}
 
-    /* 좌측 요약 영역 */
-    .issue-summary-left {
-      min-width: 200px;
-      padding-right: 20px;
-      border-right: 1px solid #bfdbfe;
-    }
-
-    .issue-summary-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: #1e40af;
-      margin: 0;
-      line-height: 1.4;
-    }
-
-    /* 우측 카드 영역 */
-    .issue-cards-right {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      flex: 1;
-    }
-
-    /* 개별 이슈 카드 */
-    .issue-card {
-      background: #ffffff;
-      border: 1px solid #bfdbfe;
-      border-radius: 8px;
-      padding: 12px 14px;
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-    }
-
-    .issue-card .icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 6px;
-      background: #eff6ff;
-      color: #1e40af;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      font-size: 16px;
-    }
-
-    /* 카드 텍스트 영역 */
-    .issue-card .issue-text-wrap {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      flex: 1;
-    }
-
-    .issue-card .issue-card-title {
-      font-size: 12px;
-      font-weight: 700;
-      color: #1f2937;
-      margin: 0;
-      line-height: 1.3;
-    }
-
-    .issue-card .issue-card-count {
-      font-size: 20px;
-      font-weight: 800;
-      color: #1e40af;
-      margin: 2px 0 4px 0;
-      line-height: 1;
-    }
-
-    .issue-card .issue-details {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .issue-card .issue-detail-txt {
-      font-size: 10px;
-      color: #6b7280;
-      margin: 0;
-      white-space: nowrap;
-    }
-
-    .issue-summary-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px 16px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; gap: 14px; }
-    .isb-left p, .isb-right p { margin: 0; font-size: 12px; }
-    .isb-title { font-weight: 700; color: #1e40af; margin-bottom: 2px !important; font-size: 13px !important; }
-
-    .issue-card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; }
-
-
-    /* 이슈 상세 내역 테이블 카드 디자인 */
-    .data-table-container {
-      background: #ffffff;
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-      overflow: hidden;
-      margin-bottom: 16px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-    }
-
-    .table-title {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      font-size: 12px;
-      font-weight: 700;
-      color: #111827;
-      background: #f9fafb;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .table-title::before {
-      content: "";
-      width: 3px;
-      height: 12px;
-      border-radius: 999px;
-      background: #0f6fff;
-      flex-shrink: 0;
-    }
-
-    .table-title p {
-      margin: 0;
-    }
-
-    table.data-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 11px;
-    }
-
-    table.data-table thead th {
-      padding: 8px 16px;
-      background: #f9fafb;
-      border-bottom: 1px solid #e5e7eb;
-      font-weight: 600;
-      color: #4b5563;
-      text-align: left;
-      white-space: nowrap;
-    }
-
-    table.data-table tbody td {
-      padding: 10px 16px;
-      border-top: 1px solid #f3f4f6;
-      color: #111827;
-      vertical-align: top;
-    }
-
-    table.data-table tbody tr:last-child td {
-      border-bottom: 0;
-    }
-
-
-    .analysis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .analysis-card { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
-    .analysis-header { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; margin: 0; }
-    
-    .mini-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 10px; }
 .mini-table th { 
-  padding: 1px 4px;      /* ★ 거의 최소 */
+  padding: 1px 4px;
   text-align: center;
   background-color: #f9fafb;
   border: 1px solid #e5e7eb;
   font-weight: 600;
   color: #4b5563;
-  font-size: 9px;         /* 더 축소 */
-  line-height: 1.0;       /* 세로 간격 최소 */
-}
-
-.mini-table td { 
-  padding: 1px 4px;      /* ★ 최소 수준 */
-  border: 1px solid #e5e7eb;
-  color: #1f2937;
-  vertical-align: middle;
-  font-size: 11px;         /* 글자 더 작게 */
+  font-size: 9px;
   line-height: 1.0;
 }
 
-
-
-    .mini-table td.cell-cat { text-align: left; }
-    .mini-table td.cell-val { text-align: center; font-weight: 600; }
-    .bg-red-light { background-color: #fef2f2 !important; }
-    .bg-blue-light { background-color: #eff6ff !important; }
-    .text-red { color: #dc2626 !important; }
-    .text-blue { color: #2563eb !important; }
-.period-fields > p {
-  font-size: 10px;        /* 원하는 크기 */
-  font-weight: 600;       /* 필요하면 추가 */
-  color: #6b7280;         /* 부드러운 회색톤 */
-  margin: 0 2px;          /* 좌우 여백 조정 */
-}
-/* 생산성 지표 카드 높이 줄이기 */
-.prod-card {
-  background: #ffffff;
+.mini-table td { 
+  padding: 1px 4px;
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 8px 12px;      /* 아주 얇게 */
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-/* 카드 안 p 기본 여백 제거 + 줄간격 줄이기 */
-.prod-card p {
-  margin: 0.5;
-  line-height: 0.1;
-}
-
-/* 제목(팀 CPD, 팀 WPD...)은 작게 */
-.prod-label {
+  color: #1f2937;
+  vertical-align: middle;
   font-size: 11px;
-  margin-bottom: 2px;
+  line-height: 1.0;
 }
 
-/* 여기만 크게: 27건 / 79건 / 42건 / 59건 */
-.prod-val {
-  font-size: 18px;
-  font-weight: 700;
-}
+.mini-table td.cell-cat { text-align: left; }
+.mini-table td.cell-val { text-align: center; font-weight: 600; }
 
-/* 증감률 텍스트도 조금만 */
-.prod-trend {
-  font-size: 11px;
-}
-
+.bg-red-light { background-color: #fef2f2 !important; }
+.bg-blue-light { background-color: #eff6ff !important; }
+.text-red { color: #dc2626 !important; }
+.text-blue { color: #2563eb !important; }
 </style>
-
 </head>
 <body>
-<div class="slide-root" data-template="admin_dashboard_interface">
+<div class="slide-root">
 <div class="layout">
-<aside aria-label="사이드바 내비게이션" class="sidebar">
+<aside class="sidebar">
 <div class="sidebar-top">
 <p>SIIC 부천센터 업무 시스템</p>
 </div>
 <div class="sidebar-user">
-<div class="avatar"><p>세</p></div>
+<div class="avatar"><p>선</p></div>
 <div class="sidebar-user-text">
 <p class="user-name">서세희</p>
 <p class="user-role">관리자</p>
 </div>
-<button aria-label="사이드바 접기" class="sidebar-toggle"><p>◀</p></button>
+<button class="sidebar-toggle"><p>◀</p></button>
 </div>
 <nav class="nav">
-  <!-- 새로 추가되는 상단 2개 -->
   <div class="nav-item">
     <p class="nav-label" style="font-weight:700;">통합 운영 현황판</p>
   </div>
   <div class="nav-item">
     <p class="nav-label" style="font-weight:700;">크리티컬 이슈 현황</p>
   </div>
-
-  <!-- 기존 CS 현황 트리 (그대로 유지) -->
   <div class="nav-item">
     <p class="nav-label" style="font-weight:700;">CS 현황</p>
   </div>
   <div class="nav-item indent-1">
     <p class="nav-label">쇼핑몰 고객지원팀</p>
   </div>
-  <div class="nav-item indent-2">
-    <span aria-hidden="true" class="nav-bullet"></span>
+  <div class="nav-item indent-2 nav-item--active">
+    <span class="nav-bullet active"></span>
     <p class="nav-label">쇼핑몰</p>
   </div>
   <div class="nav-item indent-2">
-    <span aria-hidden="true" class="nav-bullet"></span>
+    <span class="nav-bullet"></span>
     <p class="nav-label">마켓플러스</p>
   </div>
   <div class="nav-item indent-2">
-    <span aria-hidden="true" class="nav-bullet"></span>
+    <span class="nav-bullet"></span>
     <p class="nav-label">타사유입</p>
   </div>
-
   <div class="nav-item indent-1">
     <p class="nav-label">호스팅 고객지원팀</p>
   </div>
   <div class="nav-item indent-2">
-    <span aria-hidden="true" class="nav-bullet"></span>
+    <span class="nav-bullet"></span>
     <p class="nav-label">웹호스팅</p>
   </div>
   <div class="nav-item indent-2">
-    <span aria-hidden="true" class="nav-bullet"></span>
+    <span class="nav-bullet"></span>
     <p class="nav-label">서버호스팅</p>
   </div>
   <div class="nav-item indent-2">
-    <span aria-hidden="true" class="nav-bullet"></span>
+    <span class="nav-bullet"></span>
     <p class="nav-label">개인정보</p>
   </div>
   <div class="nav-item indent-2">
-    <span aria-hidden="true" class="nav-bullet"></span>
+    <span class="nav-bullet"></span>
     <p class="nav-label">창업센터</p>
   </div>
-
   <div class="nav-item indent-1">
     <p class="nav-label">커머스 코칭팀</p>
   </div>
-  <div aria-current="page" class="nav-item indent-2 nav-item--active">
-    <span aria-hidden="true" class="nav-bullet active"></span>
+  <div class="nav-item indent-2">
+    <span class="nav-bullet"></span>
     <p class="nav-label">관리몰</p>
   </div>
   <div class="nav-item indent-2">
-    <span aria-hidden="true" class="nav-bullet"></span>
+    <span class="nav-bullet"></span>
     <p class="nav-label">유튜브</p>
   </div>
-
   <div class="nav-item indent-1">
     <p class="nav-label">온보딩 코칭팀</p>
   </div>
   <div class="nav-item indent-2">
-    <span aria-hidden="true" class="nav-bullet"></span>
+    <span class="nav-bullet"></span>
     <p class="nav-label">PRO</p>
   </div>
 </nav>
-
 </aside>
+
 <main class="main">
-<header aria-label="글로벌 헤더" class="global-header">
+<header class="global-header">
 <div class="gh-left">
 <p>SIIC 부천센터</p>
 <p class="sep">|</p>
@@ -561,43 +1060,44 @@ td p .badge-count {
 <p class="meta">(업데이트 주기: 30분~1시간)</p>
 </div>
 <div class="gh-right">
-<button aria-label="관리자 승인" class="btn"><p>관리자 승인</p></button>
-<button aria-label="로그아웃" class="btn danger"><p>로그아웃</p></button>
+<button class="btn"><p>관리자 승인</p></button>
+<button class="btn danger"><p>로그아웃</p></button>
 </div>
 </header>
+
 <div class="page-title-row">
 <div style="display: flex; align-items: center; gap: 12px;">
-<h1 class="page-main-title">쇼핑몰 CS 현황</h1>
+<h1 class="page-main-title">마켓 CS 현황</h1>
 <div class="filter-btn-group">
 <button class="filter-btn active"><p>전체</p></button>
-<button class="filter-btn"><p>쇼핑몰</p></button>
+<button class="filter-btn"><p>마켓</p></button>
 </div>
 </div>
-<div aria-label="날짜 및 기간 선택 영역" class="date-controls">
-<div aria-label="기간 선택 모드" class="mode-toggle" role="tablist">
-<button aria-selected="false" class="mode-btn" role="tab"><p>일자</p></button>
-<button aria-selected="true" class="mode-btn active" role="tab"><p>기간</p></button>
+<div class="date-controls">
+<div class="mode-toggle">
+<button class="mode-btn"><p>일자</p></button>
+<button class="mode-btn active"><p>기간</p></button>
 </div>
-<div aria-label="기간 입력(yyyy년/mm월/n주차)" class="period-fields">
-<div aria-label="연도 입력" class="input-chip" role="textbox">
+<div class="period-fields">
+<div class="input-chip">
 <p contenteditable="true">2025</p>
 </div>
 <p>년</p>
-<div aria-label="월 입력" class="input-chip" role="textbox">
+<div class="input-chip">
 <p contenteditable="true">11</p>
 </div>
 <p>월</p>
-<div aria-label="주차 입력" class="input-chip" role="textbox">
+<div class="input-chip">
 <p contenteditable="true">4</p>
 </div>
 <p>주차</p>
 </div>
-<button aria-label="리포트 등록" class="btn-primary">
+<button class="btn-primary">
 <p>리포트 등록</p>
 </button>
 </div>
 </div>
-<!-- CS 현황 대시보드 헤더 및 필터 추가 -->
+
 <div class="section-header" style="margin-bottom: 8px;">
 <div class="section-title"><p>CS 현황 대시보드</p></div>
 <div class="filter-btn-group">
@@ -605,6 +1105,7 @@ td p .badge-count {
 <button class="filter-btn"><p>평균</p></button>
 </div>
 </div>
+
 <div class="stats-split-container">
 <div class="stat-group-box">
 <div class="stat-group-header">
@@ -629,6 +1130,7 @@ td p .badge-count {
 </div>
 </div>
 </div>
+
 <div class="stat-group-box">
 <div class="stat-group-header">
 <div class="stat-group-icon"><i class="fa-solid fa-clipboard-list"></i></div>
@@ -653,10 +1155,10 @@ td p .badge-count {
 </div>
 </div>
 </div>
+
 <div class="section-wrapper">
 <div class="section-header">
 <div class="section-title"><p>주차별 추이</p></div>
-<!-- 주차별 추이 필터 통합 배치 -->
 <div class="filter-btn-group">
 <button class="filter-btn active"><p>누적</p></button>
 <button class="filter-btn"><p>평균</p></button>
@@ -666,7 +1168,6 @@ td p .badge-count {
 <div class="chart-card">
 <div class="chart-card-header">
 <p class="chart-title-small">유선 주차별 추이</p>
-<!-- 개별 필터 제거됨 -->
 </div>
 <div class="chart-container-medium">
 <canvas id="phoneWeeklyChart"></canvas>
@@ -675,7 +1176,6 @@ td p .badge-count {
 <div class="chart-card">
 <div class="chart-card-header">
 <p class="chart-title-small">게시판 주차별 추이</p>
-<!-- 개별 필터 제거됨 -->
 </div>
 <div class="chart-container-medium">
 <canvas id="boardWeeklyChart"></canvas>
@@ -683,6 +1183,7 @@ td p .badge-count {
 </div>
 </div>
 </div>
+
 <div class="section-wrapper">
 <div class="section-header">
 <div class="section-title"><p>일별 추이</p></div>
@@ -706,6 +1207,7 @@ td p .badge-count {
 </div>
 </div>
 </div>
+
 <div class="section-wrapper">
 <div class="section-header">
 <div class="section-title"><p>월별 추이</p></div>
@@ -720,10 +1222,14 @@ td p .badge-count {
 </div>
 </div>
 </div>
+
 <div class="section-wrapper">
 <div class="toggle-btn-container">
 <button class="toggle-btn" id="toggleSummaryBtn">
 ↓ 전월대비 현황 보기
+</button>
+<button class="toggle-btn" id="toggleYearBtn">
+↓ 전년동월 대비 현황 보기
 </button>
 </div>
 <div class="toggle-content" id="summaryContent">
@@ -731,7 +1237,7 @@ td p .badge-count {
 <div class="summary-box-compact">
 <div class="summary-header-compact">
 <p>유선(전월대비)</p>
-<i class="fa-solid fa-circle-info" title="전월 대비 주요 지표 변화"></i>
+<i class="fa-solid fa-circle-info"></i>
 </div>
 <div class="summary-list-container">
 <div class="summary-list-row">
@@ -756,10 +1262,11 @@ td p .badge-count {
 </div>
 </div>
 </div>
+
 <div class="summary-box-compact">
 <div class="summary-header-compact">
 <p>게시판(전월대비)</p>
-<i class="fa-solid fa-circle-info" title="전월 대비 주요 지표 변화"></i>
+<i class="fa-solid fa-circle-info"></i>
 </div>
 <div class="summary-list-container">
 <div class="summary-list-row">
@@ -786,18 +1293,81 @@ td p .badge-count {
 </div>
 </div>
 </div>
+
+<div class="toggle-content" id="yearContent">
+<div class="summary-grid-compact">
+<div class="summary-box-compact">
+<div class="summary-header-compact">
+<p>유선(전년동월 대비)</p>
+<i class="fa-solid fa-circle-info"></i>
 </div>
+<div class="summary-list-container">
+<div class="summary-list-row">
+<div class="sl-label"><p>인입건</p></div>
+<div class="sl-value"><p>291 → 270</p></div>
+<div class="sl-change trend-down"><p>↓ 7.2%</p></div>
+</div>
+<div class="summary-list-row">
+<div class="sl-label"><p>응대건</p></div>
+<div class="sl-value"><p>230 → 239</p></div>
+<div class="sl-change trend-up"><p>↑ 3.9%</p></div>
+</div>
+<div class="summary-list-row">
+<div class="sl-label"><p>응대율</p></div>
+<div class="sl-value"><p>79.1% → 88.8%</p></div>
+<div class="sl-change trend-up"><p>↑ 9.7%p</p></div>
+</div>
+<div class="summary-list-row">
+<div class="sl-label"><p>CPD</p></div>
+<div class="sl-value"><p>26 → 27</p></div>
+<div class="sl-change trend-up"><p>↑ 3.8%</p></div>
+</div>
+</div>
+</div>
+
+<div class="summary-box-compact">
+<div class="summary-header-compact">
+<p>게시판(전년동월 대비)</p>
+<i class="fa-solid fa-circle-info"></i>
+</div>
+<div class="summary-list-container">
+<div class="summary-list-row">
+<div class="sl-label"><p>문의건</p></div>
+<div class="sl-value"><p>370 → 315</p></div>
+<div class="sl-change trend-down"><p>↓ 14.9%</p></div>
+</div>
+<div class="summary-list-row">
+<div class="sl-label"><p>처리건</p></div>
+<div class="sl-value"><p>378 → 297</p></div>
+<div class="sl-change trend-down"><p>↓ 21.4%</p></div>
+</div>
+<div class="summary-list-row">
+<div class="sl-label"><p>답변율</p></div>
+<div class="sl-value"><p>102.2% → 94.1%</p></div>
+<div class="sl-change trend-down"><p>↓ 8.1%p</p></div>
+</div>
+<div class="summary-list-row">
+<div class="sl-label"><p>WPD</p></div>
+<div class="sl-value"><p>94 → 74</p></div>
+<div class="sl-change trend-down"><p>↓ 21.3%</p></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
 <div class="section-wrapper">
-  <div class="section-header">
-    <div class="section-title"><p>카페24 신규가입수 추이</p></div>
-  </div>
-  
-  <div class="chart-card">
-    <div class="chart-container-medium">
-      <canvas id="cafe24SignupChart"></canvas>
-    </div>
-  </div>
+<div class="section-header">
+<div class="section-title"><p>카페24 신규가입수 추이</p></div>
 </div>
+<div class="chart-card">
+<div class="chart-container-medium">
+<canvas id="cafe24SignupChart"></canvas>
+</div>
+</div>
+</div>
+
 <div class="section-wrapper">
 <div class="section-header">
 <div class="section-title"><p>주요 이슈</p></div>
@@ -806,6 +1376,7 @@ td p .badge-count {
 <button class="filter-btn active"><p>월별</p></button>
 </div>
 </div>
+
 <div class="issue-main-container">
 <div class="issue-summary-left">
 <p class="issue-summary-title">주요 이슈 요약 - 해소완료 6건</p>
@@ -846,11 +1417,13 @@ td p .badge-count {
 </div>
 </div>
 </div>
+
 <div class="toggle-btn-container">
 <button class="toggle-btn" id="toggleIssueBtn">
 ↓ 이슈 상세 내역 보기
 </button>
 </div>
+
 <div class="toggle-content" id="issueTablesArea">
 <div class="data-table-container">
 <div class="table-title"><p>제휴사 이슈 (3건)</p></div>
@@ -889,6 +1462,7 @@ td p .badge-count {
 </tbody>
 </table>
 </div>
+
 <div class="data-table-container">
 <div class="table-title"><p>배포 이슈 (2건)</p></div>
 <table class="data-table">
@@ -921,6 +1495,7 @@ td p .badge-count {
 </div>
 </div>
 </div>
+
 <div class="section-wrapper">
 <div class="section-header">
 <div class="section-title"><p>카테고리별 증감 분석</p></div>
@@ -929,47 +1504,101 @@ td p .badge-count {
 <button class="filter-btn active"><p>월별</p></button>
 </div>
 </div>
-<div class="analysis-grid">
-<div class="analysis-card">
-<p class="analysis-header text-red"><i class="fa-solid fa-arrow-trend-up"></i> 증가한 카테고리 TOP5</p>
-<div class="chart-container-small">
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%;">
+<div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; display: flex; flex-direction: column;">
+<p style="font-size: 14px; font-weight: 700; color: #dc2626; margin: 0 0 12px 0; display: flex; align-items: center; gap: 6px;">
+<i class="fa-solid fa-arrow-trend-up"></i> 증가한 카테고리 TOP5
+</p>
+<div style="height: 200px; width: 100%; margin-bottom: 12px;">
 <canvas id="increasedCatChart"></canvas>
 </div>
-<table class="mini-table">
+<table style="width: 100%; border-collapse: collapse; font-size: 11px;">
 <thead>
-<tr><th style="width:50%;"><p>카테고리</p></th><th style="width:20%;"><p>증감 건수</p></th><th style="width:30%;"><p>증감율</p></th></tr>
+<tr style="background: #f9fafb; border-bottom: 1px solid #e5e7eb;">
+<th style="padding: 6px 8px; text-align: left; font-weight: 600; color: #6b7280; width: 50%;">카테고리</th>
+<th style="padding: 6px 8px; text-align: center; font-weight: 600; color: #6b7280; width: 25%;">증감 건수</th>
+<th style="padding: 6px 8px; text-align: center; font-weight: 600; color: #6b7280; width: 25%;">증감율</th>
+</tr>
 </thead>
 <tbody>
-<tr class="bg-red-light"><td class="cell-cat"><p>상품 &gt; 재고</p></td><td class="cell-val text-red"><p>+7</p></td><td class="cell-val text-red"><p>+350.0%</p></td></tr>
-<tr><td class="cell-cat"><p>결제 &gt; 무통장 입금 자동 확인</p></td><td class="cell-val text-red"><p>+5</p></td><td class="cell-val text-red"><p>+250.0%</p></td></tr>
-<tr><td class="cell-cat"><p>결제 &gt; 결제 오류</p></td><td class="cell-val text-red"><p>+8</p></td><td class="cell-val text-red"><p>+200.0%</p></td></tr>
-<tr><td class="cell-cat"><p>고객(회원) &gt; 본인 인증</p></td><td class="cell-val text-red"><p>+4</p></td><td class="cell-val text-red"><p>+80.0%</p></td></tr>
-<tr><td class="cell-cat"><p>디자인 &gt; 수정(편집)</p></td><td class="cell-val text-red"><p>+4</p></td><td class="cell-val text-red"><p>+40.0%</p></td></tr>
+<tr style="background: #fef2f2;">
+<td style="padding: 6px 8px; border-bottom: 1px solid #fee2e2;">상품 &gt; 재고</td>
+<td style="padding: 6px 8px; text-align: center; font-weight: 600; color: #dc2626; border-bottom: 1px solid #fee2e2;">+7</td>
+<td style="padding: 6px 8px; text-align: center; font-weight: 600; color: #dc2626; border-bottom: 1px solid #fee2e2;">+350.0%</td>
+</tr>
+<tr>
+<td style="padding: 6px 8px; border-bottom: 1px solid #f3f4f6;">결제 &gt; 무통장 입금</td>
+<td style="padding: 6px 8px; text-align: center; font-weight: 600; color: #dc2626; border-bottom: 1px solid #f3f4f6;">+5</td>
+<td style="padding: 6px 8px; text-align: center; font-weight: 600; color: #dc2626; border-bottom: 1px solid #f3f4f6;">+250.0%</td>
+</tr>
+<tr>
+<td style="padding: 6px 8px; border-bottom: 1px solid #f3f4f6;">결제 &gt; 결제 오류</td>
+<td style="padding: 6px 8px; text-align: center; font-weight: 600; color: #dc2626; border-bottom: 1px solid #f3f4f6;">+8</td>
+<td style="padding: 6px 8px; text-align: center; font-weight: 600; color: #dc2626; border-bottom: 1px solid #f3f4f6;">+200.0%</td>
+</tr>
+<tr>
+<td style="padding: 6px 8px; border-bottom: 1px solid #f3f4f6;">고객(회원) &gt; 본인 인증</td>
+<td style="padding: 6px 8px; text-align: center; font-weight: 600; color: #dc2626; border-bottom: 1px solid #f3f4f6;">+4</td>
+<td style="padding: 6px 8px; text-align: center; font-weight: 600; color: #dc2626; border-bottom: 1px solid #f3f4f6;">+80.0%</td>
+</tr>
+<tr>
+<td style="padding: 6px 8px;">디자인 &gt; 수정(편집)</td>
+<td style="padding: 6px 8px; text-align: center; font-weight: 600; color: #dc2626;">+4</td>
+<td style="padding: 6px 8px; text-align: center; font-weight: 600; color: #dc2626;">+40.0%</td>
+</tr>
 </tbody>
 </table>
 </div>
-<div class="analysis-card">
-<p class="analysis-header text-blue"><i class="fa-solid fa-arrow-trend-down"></i> 감소한 카테고리 TOP5</p>
-<div class="chart-container-small">
+
+<div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; display: flex; flex-direction: column;">
+<p style="font-size: 14px; font-weight: 700; color: #2563eb; margin: 0 0 12px 0; display: flex; align-items: center; gap: 6px;">
+<i class="fa-solid fa-arrow-trend-down"></i> 감소한 카테고리 TOP5
+</p>
+<div style="height: 200px; width: 100%; margin-bottom: 12px;">
 <canvas id="decreasedCatChart"></canvas>
 </div>
-<table class="mini-table">
+<table style="width: 100%; border-collapse: collapse; font-size: 11px;">
 <thead>
-<tr><th style="width:50%;"><p>카테고리</p></th><th style="width:20%;"><p>증감 건수</p></th><th style="width:30%;"><p>감소율</p></th></tr>
+<tr style="background: #f9fafb; border-bottom: 1px solid #e5e7eb;">
+<th style="padding: 6px 8px; text-align: left; font-weight: 600; color: #6b7280; width: 50%;">카테고리</th>
+<th style="padding: 6px 8px; text-align: center; font-weight: 600; color: #6b7280; width: 25%;">증감 건수</th>
+<th style="padding: 6px 8px; text-align: center; font-weight: 600; color: #6b7280; width: 25%;">감소율</th>
+</tr>
 </thead>
 <tbody>
-<tr class="bg-blue-light"><td class="cell-cat"><p>부가서비스 &gt; 택배 연동</p></td><td class="cell-val text-blue"><p>-16</p></td><td class="cell-val text-blue"><p>-84.2%</p></td></tr>
-<tr><td class="cell-cat"><p>메시지 &gt; 자동알림</p></td><td class="cell-val text-blue"><p>-14</p></td><td class="cell-val text-blue"><p>-70.0%</p></td></tr>
-<tr><td class="cell-cat"><p>주문 &gt; 취소/교환/반품/환불</p></td><td class="cell-val text-blue"><p>-18</p></td><td class="cell-val text-blue"><p>-34.0%</p></td></tr>
-<tr><td class="cell-cat"><p>통계</p></td><td class="cell-val text-blue"><p>-16</p></td><td class="cell-val text-blue"><p>-38.1%</p></td></tr>
-<tr><td class="cell-cat"><p>확장 기능 &gt; 앱스토어</p></td><td class="cell-val text-blue"><p>-11</p></td><td class="cell-val text-blue"><p>-37.9%</p></td></tr>
+<tr style="background: #eff6ff;">
+<td style="padding: 6px 8px; border-bottom: 1px solid #dbeafe;">부가서비스 &gt; 택배 연동</td>
+<td style="padding: 6px 8px; text-align: center; font-weight: 600; color: #2563eb; border-bottom: 1px solid #dbeafe;">-16</td>
+<td style="padding: 6px 8px; text-align: center; font-weight: 600; color: #2563eb; border-bottom: 1px solid #dbeafe;">-84.2%</td>
+</tr>
+<tr>
+<td style="padding: 6px 8px; border-bottom: 1px solid #f3f4f6;">메시지 &gt; 자동알림</td>
+<td style="padding: 6px 8px; text-align: center; font-weight: 600; color: #2563eb; border-bottom: 1px solid #f3f4f6;">-14</td>
+<td style="padding: 6px 8px; text-align: center; font-weight: 600; color: #2563eb; border-bottom: 1px solid #f3f4f6;">-70.0%</td>
+</tr>
+<tr>
+<td style="padding: 6px 8px; border-bottom: 1px solid #f3f4f6;">주문 &gt; 취소/반품</td>
+<td style="padding: 6px 8px; text-align: center; font-weight: 600; color: #2563eb; border-bottom: 1px solid #f3f4f6;">-18</td>
+<td style="padding: 6px 8px; text-align: center; font-weight: 600; color: #2563eb; border-bottom: 1px solid #f3f4f6;">-34.0%</td>
+</tr>
+<tr>
+<td style="padding: 6px 8px; border-bottom: 1px solid #f3f4f6;">통계</td>
+<td style="padding: 6px 8px; text-align: center; font-weight: 600; color: #2563eb; border-bottom: 1px solid #f3f4f6;">-16</td>
+<td style="padding: 6px 8px; text-align: center; font-weight: 600; color: #2563eb; border-bottom: 1px solid #f3f4f6;">-38.1%</td>
+</tr>
+<tr>
+<td style="padding: 6px 8px;">확장 기능 &gt; 앱스토어</td>
+<td style="padding: 6px 8px; text-align: center; font-weight: 600; color: #2563eb;">-11</td>
+<td style="padding: 6px 8px; text-align: center; font-weight: 600; color: #2563eb;">-37.9%</td>
+</tr>
 </tbody>
 </table>
 </div>
 </div>
 </div>
+
 <div class="section-wrapper">
-  <!-- 제목 + 우측 필터 -->
   <div class="section-header">
     <div class="section-title"><p>생산성 지표</p></div>
     <div class="filter-btn-group">
@@ -978,7 +1607,6 @@ td p .badge-count {
     </div>
   </div>
 
-  <!-- 카드 4개 영역 (그대로) -->
   <div class="prod-cards">
     <div class="prod-card">
       <div class="prod-info">
@@ -1010,7 +1638,6 @@ td p .badge-count {
     </div>
   </div>
 
-  <!-- 팀/개인 차트 영역 (필터 제거 버전) -->
   <div class="prod-charts">
     <div class="chart-card">
       <div class="chart-card-header">
@@ -1034,6 +1661,7 @@ td p .badge-count {
 </main>
 </div>
 </div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // 전월대비 토글
@@ -1050,6 +1678,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 summaryContent.style.display = 'none';
                 summaryContent.classList.remove('show');
                 toggleSummaryBtn.innerHTML = '↓ 전월대비 현황 보기';
+            }
+        });
+    }
+
+    // 전년동월 대비 토글
+    const toggleYearBtn = document.getElementById('toggleYearBtn');
+    const yearContent = document.getElementById('yearContent');
+    if (toggleYearBtn && yearContent) {
+        toggleYearBtn.addEventListener('click', function() {
+            const isHidden = yearContent.style.display === '' || yearContent.style.display === 'none';
+            if (isHidden) {
+                yearContent.style.display = 'block';
+                yearContent.classList.add('show');
+                toggleYearBtn.innerHTML = '↑ 전년동월 대비 현황 접기';
+            } else {
+                yearContent.style.display = 'none';
+                yearContent.classList.remove('show');
+                toggleYearBtn.innerHTML = '↓ 전년동월 대비 현황 보기';
             }
         });
     }
@@ -1072,7 +1718,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // 일자/기간 토글 - 둘 중 하나만 선택
+    // 일자/기간 토글
     const modeToggle = document.querySelector('.mode-toggle');
     if (modeToggle) {
         const btns = modeToggle.querySelectorAll('.mode-btn');
@@ -1100,7 +1746,7 @@ document.addEventListener('DOMContentLoaded', function() {
         formatter: Math.round
     };
 
-    // 유선 주차별: 인입 → 응대 → 응대율(%)
+    // 유선 주차별
     new Chart(document.getElementById('phoneWeeklyChart').getContext('2d'), {
         data: {
             labels: ['10월2주', '10월3주', '10월4주', '11월1주', '11월2주', '평균'],
@@ -1113,7 +1759,7 @@ document.addEventListener('DOMContentLoaded', function() {
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', align: 'center', labels: { boxWidth: 10, padding: 20 } } }, scales: { y: { beginAtZero: true, max: 600, ticks: { stepSize: 100 } }, y1: { display: false, min: -20, max: 120 }, x: { grid: { display: false } } } }
     });
 
-    // 게시판 주차별: 접수 → 답변 → 답변율(%)
+    // 게시판 주차별
     new Chart(document.getElementById('boardWeeklyChart').getContext('2d'), {
         data: {
             labels: ['10월2주', '10월3주', '10월4주', '11월1주', '11월2주', '평균'],
@@ -1126,7 +1772,7 @@ document.addEventListener('DOMContentLoaded', function() {
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', align: 'center', labels: { boxWidth: 10, padding: 20 } } }, scales: { y: { beginAtZero: true, max: 600, ticks: { stepSize: 100 } }, y1: { display: false, min: -20, max: 140 }, x: { grid: { display: false } } } }
     });
 
-    // 유선 일별: 인입 → 응대 → 응대율(%)
+    // 유선 일별
     new Chart(document.getElementById('phoneDailyChart').getContext('2d'), {
         type: 'bar',
         data: {
@@ -1144,7 +1790,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 게시판 일별: 11/24 = 36/38/106%, Y축 최대값 60
+    // 게시판 일별
     new Chart(document.getElementById('boardDailyChart').getContext('2d'), {
         type: 'bar',
         data: {
@@ -1162,10 +1808,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 월별: 인입 + 접수 누적 막대 + 비율 라인
+    // 월별
     const monthLabels = ['24.01', '24.02', '24.03', '24.04', '24.05', '24.06', '24.07', '24.08', '24.09', '24.10', '24.11', '24.12', '25.01', '25.02', '25.03', '25.04', '25.05', '25.06', '25.07', '25.08', '25.09', '25.10', '25.11'];
-    const phoneCounts = [386, 348, 357, 336, 345, 344, 319, 314, 324, 335, 291, 283, 304, 316, 338, 294, 303, 326, 292, 317, 255, 305, 315]; // 인입
-    const boardCounts = [434, 406, 438, 447, 442, 454, 418, 382, 364, 406, 370, 337, 360, 390, 415, 354, 349, 382, 320, 311, 306, 321, 270]; // 접수
+    const phoneCounts = [386, 348, 357, 336, 345, 344, 319, 314, 324, 335, 291, 283, 304, 316, 338, 294, 303, 326, 292, 317, 255, 305, 315];
+    const boardCounts = [434, 406, 438, 447, 442, 454, 418, 382, 364, 406, 370, 337, 360, 390, 415, 354, 349, 382, 320, 311, 306, 321, 270];
     const phoneRate = [84.7, 91.0, 88.7, 80.4, 77.6, 72.9, 72.5, 73.9, 77.4, 77.3, 79.1, 83.0, 86.1, 83.2, 83.8, 87.3, 85.1, 84.3, 86.5, 76.8, 86.5, 88.6, 88.8];
     const boardRate = [99.9, 101.8, 101.3, 105.3, 99.9, 101.0, 101.3, 100.5, 104.2, 104.3, 102.2, 105.6, 110.8, 103.3, 102.5, 103.9, 101.2, 100.6, 101.9, 95.9, 102.7, 101.2, 94.1];
 
@@ -1191,6 +1837,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // 팀 생산성
     new Chart(document.getElementById('teamProdChart').getContext('2d'), {
         type: 'bar',
         data: {
@@ -1203,6 +1850,7 @@ document.addEventListener('DOMContentLoaded', function() {
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', align: 'center', labels: { boxWidth: 10, padding: 20 } } }, scales: { y: { beginAtZero: true }, x: { grid: { display: false } } } }
     });
 
+    // 개인 생산성
     new Chart(document.getElementById('personalProdChart').getContext('2d'), {
         type: 'bar',
         data: {
@@ -1215,107 +1863,107 @@ document.addEventListener('DOMContentLoaded', function() {
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', align: 'center', labels: { boxWidth: 10, padding: 20 } } }, scales: { y: { beginAtZero: true, max: 100 }, x: { grid: { display: false }, ticks: { font: { size: 10 } } } } }
     });
 
-    new Chart(document.getElementById('increasedCatChart').getContext('2d'), {
-        type: 'bar',
-        indexAxis: 'y',
-        data: {
-            labels: ['상품 > 재고', '결제 > 무통장 입금', '결제 > 결제 오류', '고객 > 본인 인증', '디자인 > 수정'],
-            datasets: [{
-                label: '증가율',
-                data: [350, 250, 200, 80, 40],
-                backgroundColor: '#f87171',
-                borderRadius: 4,
-                datalabels: { align: 'end', anchor: 'end', formatter: (val) => val + '%', color: '#dc2626', font: { weight: 'bold' } }
-            }]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false, max: 400 }, y: { grid: { display: false }, ticks: { font: { size: 11 } } } }
-        }
-    });
-
-    new Chart(document.getElementById('decreasedCatChart').getContext('2d'), {
-        type: 'bar',
-        indexAxis: 'y',
-        data: {
-            labels: ['부가서비스 > 택배', '메시지 > 자동알림', '주문 > 취소/반품', '통계', '확장 > 앱스토어'],
-            datasets: [{
-                label: '감소율',
-                data: [-84.2, -70, -34, -38.1, -37.9],
-                backgroundColor: '#60a5fa',
-                borderRadius: 4,
-                datalabels: { align: 'start', anchor: 'start', formatter: (val) => val + '%', color: '#2563eb', font: { weight: 'bold' } }
-            }]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false, min: -100 }, y: { grid: { display: false }, position: 'right', ticks: { font: { size: 11 } } } }
-        }
-    });
-
     // 카페24 신규가입수 추이 차트
     new Chart(document.getElementById('cafe24SignupChart').getContext('2d'), {
         type: 'line',
         data: {
-            labels: ['2025-05', '2025-06', '2025-07', '2025-08', '2025-09', '2025-10', '2025-11', '2025-12'],
+            labels: ['2023.05', '2023.06', '2023.07', '2023.08', '2023.09', '2023.10', '2023.11', '2023.12'],
             datasets: [{
                 label: '신규가입수',
-                data: [9416, 9499, 10138, 9614, 9836, 8777, 10176, 836],
-                borderColor: '#0f6fff',
-                backgroundColor: 'rgba(15, 111, 255, 0.1)',
-                borderWidth: 3,
+                data: [12365, 9486, 10128, 9637, 9409, 6777, 10310, 976],
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderWidth: 2,
+                tension: 0.4,
                 fill: true,
-                tension: 0.3,
-                pointRadius: 5,
-                pointBackgroundColor: '#0f6fff',
-                pointBorderColor: '#ffffff',
-                pointBorderWidth: 2,
-                pointHoverRadius: 7,
-                datalabels: {
-                    display: true,
-                    align: 'top',
-                    anchor: 'end',
-                    color: '#1e40af',
-                    font: { weight: 'bold', size: 11 },
-                    formatter: (val) => val.toLocaleString()
-                }
+                pointRadius: 4,
+                pointHoverRadius: 6
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return '신규가입수: ' + context.parsed.y.toLocaleString() + '명';
-                        }
-                    }
-                }
+                legend: { display: false },
+                datalabels: { display: false }
             },
             scales: {
                 y: {
                     beginAtZero: true,
-                    max: 12000,
-                    ticks: {
-                        stepSize: 2000,
-                        callback: function(value) {
-                            return value.toLocaleString();
-                        }
-                    },
-                    grid: {
-                        color: '#f3f4f6'
-                    }
+                    grid: { color: '#f3f4f6' },
+                    ticks: { font: { size: 11 } }
                 },
                 x: {
-                    grid: {
-                        display: false
-                    },
-                    ticks: {
-                        font: { size: 11 }
-                    }
+                    grid: { display: false },
+                    ticks: { font: { size: 11 } }
                 }
+            }
+        }
+    });
+
+    // 증가한 카테고리
+    new Chart(document.getElementById('increasedCatChart').getContext('2d'), {
+        type: 'bar',
+        indexAxis: 'y',
+        data: {
+            labels: ['상품 > 재고', '결제 > 무통장', '결제 > 오류', '고객 > 인증', '디자인 > 수정'],
+            datasets: [{
+                label: '증가율',
+                data: [350, 250, 200, 80, 40],
+                backgroundColor: '#f87171',
+                borderRadius: 4,
+                datalabels: { align: 'end', anchor: 'end', formatter: (val) => val + '%', color: '#dc2626', font: { weight: 'bold', size: 11 } }
+            }]
+        },
+        options: {
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { 
+                legend: { display: false },
+                datalabels: {
+                    display: true
+                }
+            }, 
+            scales: { 
+                x: { display: false, max: 400 }, 
+                y: { 
+                    grid: { display: false }, 
+                    ticks: { font: { size: 10 } } 
+                } 
+            }
+        }
+    });
+
+    // 감소한 카테고리
+    new Chart(document.getElementById('decreasedCatChart').getContext('2d'), {
+        type: 'bar',
+        indexAxis: 'y',
+        data: {
+            labels: ['택배 연동', '자동알림', '취소/반품', '통계', '앱스토어'],
+            datasets: [{
+                label: '감소율',
+                data: [-84.2, -70, -34, -38.1, -37.9],
+                backgroundColor: '#60a5fa',
+                borderRadius: 4,
+                datalabels: { align: 'start', anchor: 'start', formatter: (val) => val + '%', color: '#2563eb', font: { weight: 'bold', size: 11 } }
+            }]
+        },
+        options: {
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { 
+                legend: { display: false },
+                datalabels: {
+                    display: true
+                }
+            }, 
+            scales: { 
+                x: { display: false, min: -100 }, 
+                y: { 
+                    grid: { display: false }, 
+                    position: 'right', 
+                    ticks: { font: { size: 10 } } 
+                } 
             }
         }
     });
