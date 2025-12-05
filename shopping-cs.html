@@ -251,6 +251,7 @@ body {
   justify-content: space-between; 
   margin-bottom: 12px; 
   gap: 12px; 
+  width: 100%;
 }
 
 .page-main-title { 
@@ -981,7 +982,7 @@ td p .badge-count {
 <div class="sidebar-user">
 <div class="avatar"><p>선</p></div>
 <div class="sidebar-user-text">
-<p class="user-name">정선아</p>
+<p class="user-name">서세희</p>
 <p class="user-role">관리자</p>
 </div>
 <button class="sidebar-toggle"><p>◀</p></button>
@@ -1066,11 +1067,15 @@ td p .badge-count {
 </header>
 
 <div class="page-title-row">
-<div style="display: flex; align-items: center; gap: 12px;">
+<div style="display: flex; align-items: center; gap: 12px; flex-shrink: 0;">
 <h1 class="page-main-title">쇼핑몰 CS 현황</h1>
 <div class="filter-btn-group">
 <button class="filter-btn active"><p>전체</p></button>
-<button class="filter-btn"><p>쇼핑몰</p>
+<button class="filter-btn"><p>쇼핑몰</p></button>
+</div>
+</div>
+<div class="date-controls" style="flex-shrink: 0;">
+<div class="mode-toggle">
 <button class="mode-btn"><p>일자</p></button>
 <button class="mode-btn active"><p>기간</p></button>
 </div>
