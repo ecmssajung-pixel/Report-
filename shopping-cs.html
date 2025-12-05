@@ -1599,6 +1599,37 @@ td p .badge-count {
 </div>
 
 <div class="section-wrapper">
+<div class="section-header">
+<div class="section-title"><p>AICC 고객만족도 평가</p></div>
+<div class="filter-btn-group">
+<button class="filter-btn active" id="satisfactionCumulBtn"><p>누적</p></button>
+<button class="filter-btn" id="satisfactionAvgBtn"><p>평균</p></button>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%;">
+<!-- 긍정 평가 -->
+<div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px;">
+<p style="font-size: 14px; font-weight: 700; color: #2563eb; margin: 0 0 12px 0; display: flex; align-items: center; gap: 6px;">
+<i class="fa-solid fa-face-smile"></i> 긍정 평가 (매우 만족 + 만족)
+</p>
+<div style="height: 280px; width: 100%;">
+<canvas id="positiveSatisfactionChart"></canvas>
+</div>
+</div>
+
+<!-- 부정 평가 -->
+<div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px;">
+<p style="font-size: 14px; font-weight: 700; color: #dc2626; margin: 0 0 12px 0; display: flex; align-items: center; gap: 6px;">
+<i class="fa-solid fa-face-frown"></i> 부정 평가 (불만족 + 매우 불만족)
+</p>
+<div style="height: 280px; width: 100%;">
+<canvas id="negativeSatisfactionChart"></canvas>
+</div>
+</div>
+</div>
+
+<div class="section-wrapper" style="margin-top: 32px;">
   <div class="section-header">
     <div class="section-title"><p>생산성 지표</p></div>
     <div class="filter-btn-group">
@@ -1862,6 +1893,198 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', align: 'center', labels: { boxWidth: 10, padding: 20 } } }, scales: { y: { beginAtZero: true, max: 100 }, x: { grid: { display: false }, ticks: { font: { size: 10 } } } } }
     });
+
+    // AICC 고객만족도 평가 데이터
+    const satisfactionData = {
+        cumulative: {
+            labels: ['전년동월\n(24년 10월)', '전월\n(25년 11월)', '당월\n(25년 12월)'],
+            totals: [161, 282, 60],
+            positive: {
+                verySatisfied: [36, 42, 12],
+                satisfied: [11, 13, 2]
+            },
+            negative: {
+                veryDissatisfied: [70, 137, 24],
+                dissatisfied: [34, 69, 14]
+            }
+        },
+        average: {
+            labels: ['전년동월\n(24년 10월, 23일)', '전월\n(25년 11월, 20일)', '당월\n(25년 12월, 22일)'],
+            totals: [7.0, 14.1, 2.7],
+            positive: {
+                verySatisfied: [1.6, 2.1, 0.5],
+                satisfied: [0.5, 0.7, 0.1]
+            },
+            negative: {
+                veryDissatisfied: [3.0, 6.8, 1.1],
+                dissatisfied: [1.5, 3.5, 0.6]
+            }
+        }
+    };
+
+    let currentSatisfactionMode = 'cumulative';
+
+    // AICC 고객만족도 평가 - 긍정 평가 차트
+    const positiveChart = new Chart(document.getElementById('positiveSatisfactionChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: satisfactionData.cumulative.labels,
+            datasets: [{
+                label: '매우 만족',
+                data: satisfactionData.cumulative.positive.verySatisfied,
+                backgroundColor: '#3b82f6',
+                borderRadius: 6
+            }, {
+                label: '만족',
+                data: satisfactionData.cumulative.positive.satisfied,
+                backgroundColor: '#93c5fd',
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { 
+                    display: true, 
+                    position: 'top',
+                    labels: { font: { size: 11 }, padding: 10 }
+                },
+                datalabels: {
+                    display: true,
+                    color: '#ffffff',
+                    font: { weight: 'bold', size: 9 },
+                    formatter: (val, context) => {
+                        if (val <= 0) return '';
+                        const dataIndex = context.dataIndex;
+                        const total = satisfactionData[currentSatisfactionMode].totals[dataIndex];
+                        const percentage = (val / total * 100).toFixed(1);
+                        
+                        if (currentSatisfactionMode === 'average') {
+                            return `${val.toFixed(1)}건\n(${percentage}%)`;
+                        } else {
+                            return `${val}건\n(${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    stacked: true,
+                    grid: { display: false },
+                    ticks: { font: { size: 10 } }
+                },
+                y: {
+                    stacked: true,
+                    beginAtZero: true,
+                    grid: { color: '#f3f4f6' },
+                    ticks: { font: { size: 11 } }
+                }
+            }
+        }
+    });
+
+    // AICC 고객만족도 평가 - 부정 평가 차트 (매우 불만족이 아래로)
+    const negativeChart = new Chart(document.getElementById('negativeSatisfactionChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: satisfactionData.cumulative.labels,
+            datasets: [{
+                label: '매우 불만족',
+                data: satisfactionData.cumulative.negative.veryDissatisfied,
+                backgroundColor: '#dc2626',
+                borderRadius: 6
+            }, {
+                label: '불만족',
+                data: satisfactionData.cumulative.negative.dissatisfied,
+                backgroundColor: '#f87171',
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { 
+                    display: true, 
+                    position: 'top',
+                    labels: { font: { size: 11 }, padding: 10 }
+                },
+                datalabels: {
+                    display: true,
+                    color: '#ffffff',
+                    font: { weight: 'bold', size: 9 },
+                    formatter: (val, context) => {
+                        if (val <= 0) return '';
+                        const dataIndex = context.dataIndex;
+                        const total = satisfactionData[currentSatisfactionMode].totals[dataIndex];
+                        const percentage = (val / total * 100).toFixed(1);
+                        
+                        if (currentSatisfactionMode === 'average') {
+                            return `${val.toFixed(1)}건\n(${percentage}%)`;
+                        } else {
+                            return `${val}건\n(${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    stacked: true,
+                    grid: { display: false },
+                    ticks: { font: { size: 10 } }
+                },
+                y: {
+                    stacked: true,
+                    beginAtZero: true,
+                    grid: { color: '#f3f4f6' },
+                    ticks: { font: { size: 11 } }
+                }
+            }
+        }
+    });
+
+    // 누적/평균 토글 기능
+    const satisfactionCumulBtn = document.getElementById('satisfactionCumulBtn');
+    const satisfactionAvgBtn = document.getElementById('satisfactionAvgBtn');
+
+    if (satisfactionCumulBtn && satisfactionAvgBtn) {
+        satisfactionCumulBtn.addEventListener('click', function() {
+            currentSatisfactionMode = 'cumulative';
+            satisfactionCumulBtn.classList.add('active');
+            satisfactionAvgBtn.classList.remove('active');
+            
+            // 긍정 차트 업데이트
+            positiveChart.data.labels = satisfactionData.cumulative.labels;
+            positiveChart.data.datasets[0].data = satisfactionData.cumulative.positive.verySatisfied;
+            positiveChart.data.datasets[1].data = satisfactionData.cumulative.positive.satisfied;
+            positiveChart.update();
+            
+            // 부정 차트 업데이트
+            negativeChart.data.labels = satisfactionData.cumulative.labels;
+            negativeChart.data.datasets[0].data = satisfactionData.cumulative.negative.veryDissatisfied;
+            negativeChart.data.datasets[1].data = satisfactionData.cumulative.negative.dissatisfied;
+            negativeChart.update();
+        });
+
+        satisfactionAvgBtn.addEventListener('click', function() {
+            currentSatisfactionMode = 'average';
+            satisfactionAvgBtn.classList.add('active');
+            satisfactionCumulBtn.classList.remove('active');
+            
+            // 긍정 차트 업데이트
+            positiveChart.data.labels = satisfactionData.average.labels;
+            positiveChart.data.datasets[0].data = satisfactionData.average.positive.verySatisfied;
+            positiveChart.data.datasets[1].data = satisfactionData.average.positive.satisfied;
+            positiveChart.update();
+            
+            // 부정 차트 업데이트
+            negativeChart.data.labels = satisfactionData.average.labels;
+            negativeChart.data.datasets[0].data = satisfactionData.average.negative.veryDissatisfied;
+            negativeChart.data.datasets[1].data = satisfactionData.average.negative.dissatisfied;
+            negativeChart.update();
+        });
+    }
 
     // 카페24 신규가입수 추이 차트
     new Chart(document.getElementById('cafe24SignupChart').getContext('2d'), {
